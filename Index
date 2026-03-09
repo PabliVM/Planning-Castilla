@@ -1,0 +1,1427 @@
+import { useState, useRef } from "react";
+
+const RM_LOGO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADOAM4DASIAAhEBAxEB/8QAHQABAAIDAQEBAQAAAAAAAAAAAAcIAwUGBAIJAf/EAEQQAAEDAwEFBQQHBQYGAwAAAAECAwQABREGBxIhMUETIlFhcQgUMoEVI0JSkaGxFkNicoIkM1NjorIlRFXB0eFkktL/xAAcAQEAAgMBAQEAAAAAAAAAAAAABQYDBAcBAgj/xAA9EQABAwIEAwYEAggGAwAAAAABAAIDBBEFITFBElFhBhMycYGRFCKhwUKxFTNSkqLR4fAHIzRicrJTgsL/2gAMAwEAAhEDEQA/AKZUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpWysNhvN+moh2e2yJj6wVJS2jOQOZzyol7LyQYcufJTFhRnZL687rbSCpRwMnAHlWEggkEYIqx3s2bOtcWXUDd5uNngwrc+0s781oKfJAUnDfAlJyob3lw61wu0fZTtGRqR6Y9p1h5MtxQaVa2wlhQQMEpTw3Rw/HPWo+PEoX1b6UOF2tB1zzvt0y33CyGJwjEhGRJHt/f0UVUrNKjSIrqmpLDjLiVFJStJBBBwRx86w1ILHqlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlbrTWldQajcCbNapMpHaJaU6lB3EKP3lchXQbF9nlz2iao+j4CWlMxUh+UFr3SpsHKkp8yAqrL6u1rojZBaTYLBbSqVcEtLTaWCklxeBha1Y7iSocAO8RzrQra74ciNjS57r2A6ewA0ub5XBWSOPjuSbAalRRs+9nm/DW5ia7gPxrNG3RJdjKyQpQ7oxwPj4E44VJ2qNpui9j8O36ftMf3m62xKgy3ESlLrYIAHbOHIBwPhwT3jnxrstR364QdnSrumLJt13kxk5YkryhL6z9WrA+IJBUcnPLhiqyI2dW999yVdrjNnSnlFbrm8E7yick9T+dRUUkmIyuMzuBjDawJuXa6jSwtmLHiuA6wzn8N7P1lczjpWcXU2AHodSfXK1xc5S/sS20y9e61Tp+VYVw4Tcd15Hur6nXU4xkJCxujJwScccVzsn2mLhZtVSYUnToLMGQ8w26xLUlxKd4hRSlQKRvZJIGOdZ9gmm7VpnaKxPgP3OKVRnW3HGEreUkEcDhODzGM561xl60HY514nTJSZoffkuOL3nN0glROMEZHoazMwzD2ykhtjYZhx4umYdxWFha+Qtlus7MAxWWqdRC3E0XIytnbpa+ef1UwRkbNdt2mWEDLSLelxa2mmtyU24Qop7TjxBJxvDhwGfKBLzsF2hQ/piSzZ1KiW4hfeV9YttXwEADmRjgcZ6Vv9G6dc0ZqqJqCwXF5PZKxIjPAFL7J+NBI8R5c8VP+1LV69KaUb1GxZp95jqcSJy+27qGVAbigo8d4JxwVnpjArX7+ooJRBF/mNcLtubHLItubDdtshccVyXC50sTwWooSDVN4Cd9QeuV/XllkAVRi72u42iYYd0gvw5ASFdm8gpVg8jxrx1dK/2jSW3jSsm7WVpufqCWEMRpLpS25GcAJ3FpAGD14cCM1T/VFlmad1BNsk/szJhulswoVlJPiDU1R1rKppLQQQbEEWIPX6H1ChXxmM2K1tKUrcXwlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlbrTWldQajcCbNapMpHaJaU6lB3EKP3lchXQbF9nlz2iao+j4CWlMxUh+UFr3SpsHKkp8yAqrL6u1rojZBaTYLBbSqVcEtLTaWCklxeBha1Y7iSocAO8RzrQra74ciNjS57r2A6ewA0ub5XBWSOPjuSbAalRRs+9nm/DW5ia7gPxrNG3RJdjKyQpQ7oxwPj4E44VJ2qNpui9j8O36ftMf3m62xKgy3ESlLrYIAHbOHIBwPhwT3jnxrstR364QdnSrumLJt13kxk5YkryhL6z9WrA+IJBUcnPLhiqyI2dW999yVdrjNnSnlFbrm8E7yick9T+dRUUkmIyuMzuBjDawJuXa6jSwtmLHiuA6wzn8N7P1lczjpWcXU2AHodSfXK1xc5S/sS20y9e61Tp+VYVw4Tcd15Hur6nXU4xkJCxujJwScccVzsn2mLhZtVSYUnToLMGQ8w26xLUlxKd4hRSlQKRvZJIGOdZ9gmm7VpnaKxPgP3OKVRnW3HGEreUkEcDhODzGM561xl60HY514nTJSZoffkuOL3nN0glROMEZHoazMwzD2ykhtjYZhx4umYdxWFha+Qtlus7MAxWWqdRC3E0XIytnbpa+ef1UwRkbNdt2mWEDLSLelxa2mmtyU24Qop7TjxBJxvDhwGfKBLzsF2hQ/piSzZ1KiW4hfeV9YttXwEADmRjgcZ6Vv9G6dc0ZqqJqCwXF5PZKxIjPAFL7J+NBI8R5c8VP+1LV69KaUb1GxZp95jqcSJy+27qGVAbigo8d4JxwVnpjArX7+ooJRBF/mNcLtubHLItubDdtshccVyXC50sTwWooSDVN4Cd9QeuV/XllkAVRi72u42iYYd0gvw5ASFdm8gpVg8jxrx1dK/2jSW3jSsm7WVpufqCWEMRpLpS25GcAJ3FpAGD14cCM1T/VFlmad1BNsk/szJhulswoVlJPiDU1R1rKppLQQQbEEWIPX6H1ChXxmM2K1tKUrcXwlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlbrTWldQajcCbNapMpHaJaU6lB3EKP3lchXQbF9nlz2iao+j4CWlMxUh+UFr3SpsHKkp8yAqrL6u1rojZBaTYLBbSqVcEtLTaWCklxeBha1Y7iSocAO8RzrQra74ciNjS57r2A6ewA0ub5XBWSOPjuSbAalRRs+9nm/DW5ia7gPxrNG3RJdjKyQpQ7oxwPj4E44VJ2qNpui9j8O36ftMf3m62xKgy3ESlLrYIAHbOHIBwPhwT3jnxrstR364QdnSrumLJt13kxk5YkryhL6z9WrA+IJBUcnPLhiqyI2dW999yVdrjNnSnlFbrm8E7yick9T+dRUUkmIyuMzuBjDawJuXa6jSwtmLHiuA6wzn8N7P1lczjpWcXU2AHodSfXK1xc5S/sS20y9e61Tp+VYVw4Tcd15Hur6nXU4xkJCxujJwScccVzsn2mLhZtVSYUnToLMGQ8w26xLUlxKd4hRSlQKRvZJIGOdZ9gmm7VpnaKxPgP3OKVRnW3HGEreUkEcDhODzGM561xl60HY514nTJSZoffkuOL3nN0glROMEZHoazMwzD2ykhtjYZhx4umYdxWFha+Qtlus7MAxWWqdRC3E0XIytnbpa+ef1UwRkbNdt2mWEDLSLelxa2mmtyU24Qop7TjxBJxvDhwGfKBLzsF2hQ/piSzZ1KiW4hfeV9YttXwEADmRjgcZ6Vv9G6dc0ZqqJqCwXF5PZKxIjPAFL7J+NBI8R5c8VP+1LV69KaUb1GxZp95jqcSJy+27qGVAbigo8d4JxwVnpjArX7+ooJRBF/mNcLtubHLItubDdtshccVyXC50sTwWooSDVN4Cd9QeuV/XllkAVRi72u42iYYd0gvw5ASFdm8gpVg8jxrx1dK/2jSW3jSsm7WVpufqCWEMRpLpS25GcAJ3FpAGD14cCM1T/VFlmad1BNsk/szJhulswoVlJPiDU1R1rKppLQQQbEEWIPX6H1ChXxmM2K1tKUrcXwlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlS77P+1R/Rt0TbbitTtqkKCVpz8PgR5j8+XhiIqVingiqYXQTt4mOFiOY+xGoOxzQFzXB7DZwzB/v6r9Ci2qe/D1lou6tRbs23hmSni1Jb6svJ6p/NJqUNnm022aikCy3dk2PUiB9ZAkK4O/xMr5OJPlxHUV+eOyLa3etESksLcMq3LI7RlZJH/o+Y4+vKrSWDU2h9ptqaa32XXviSw4rdeaV4tqHHI8UnPjVPY+v7Lt7uRpnoxo4eOMciOX8PItJIUgRDiDuJpEcx1B8L+oPP68wdVaiuf2i6aGsNF3LTapphCc2lHbhvfKMKCs7uRnl41ElovW0TSqQ1bLqxqa3I4JiXdRTIQPBL6ef9YNdND21W9gBGpNKaiszg+JaY3vTI9Ft5P5CrNhuNUFdZ9HO1x5Xs7911j7AjqtGpppYQWzsIHuPcZfkVq7jsW1Dcogh3HaMp+KVoWtsWZtO9uKCgMheRxAqaaj1nbVsxcTlWqWWT1S9HebI+SkCviRtt2bNjDF+cmr6Iiwn3FH8EYqSioTBHwRQhjbk2a0NFza5yAGwzWt8RE53E6S50zdc/UnmuU9o7Yw1rCM7qbTTCGtQMoy8ynATNSBy8nB0PXkemKlWfT97vF4NottrlSZyVFLjKWyFN44HfzwQB1JwBVyZ+2G4zQW9K6Guj5PASbqpMNkee7xWR8hXGTrPeNQvyZWrbnHDElfayLdamvdYzivF1Q7739RpJ27oMEhLKmUOI0a08TvKw0/8AYt81rSdnpcQlD4WEX1JFh53P2BUc6C0k1bJg+h1xLzqBs4cuW72lutR/yyeEh8dMdxJ48eY7W+3bT+zPS70yZIU9IdUp1a3nN5+a8ea1qPHnzPTkK57aJtd0noa2m32j3aVKbTuNMxwAy3+HP0HzIqp2vta3rWV2cnXWStYUe6jPADoMcseVVGpbifa2Vs2JNMNKDcR/ifyLuQ9svCCSXKZp2U2EsMdIQ+XQu2bztzP9mwyWTaZrS5a11E9cprpKCr6tHIJHTA6AdB/7rlaUq1gAANaLACwA0AGgHQLVAslKUovUpSlESlKURKUpREpSlESlKURKUpREr1224zra+H4UlxhYOcpNeSlfTXOabtNivHNDhYi6mfRntCatsyER7kU3JhPDDw3jj1zvfnUp2L2k9LyUJFxt8iKvqW1hQ/1Y/Wqi0qEruzmEV5Lp6dvFzbdp/hIB8yCtmGsqoBaOQgcjmPrf6FXea24bOpCd5U9wH+NpJ/71il7eNnsRBLcuQ4fBDaU5/FVUmpUSOweB38D/AC48v+t/qtn9MV37Q/d/qrVai9pm0spUmzWhby+i3lk/kMfrUP6424ay1OlbDk0xoqv3TXdTj0HP55qNaVOYfgmG4aQ6kga13PNzvQuJI9LLTnqJ6gWmkLhy0HsLA+t19vvOvul15xTizzUo5Jr4pSpQkk3KwgACwSlKV4vUpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlEX/2Q==";
+
+// ── Paleta de colores institucional Real Madrid ──
+// Base: blanco (#FFFFFF), Azul RM (#003087), Azul medio (#1A4FAF), dorado acento (#C8A840)
+const C = {
+  white:      "#FFFFFF",
+  offWhite:   "#F4F6FA",
+  blueDeep:   "#003087",   // azul corporativo principal
+  blueMid:    "#1A4FAF",   // azul medio
+  blueLight:  "#D6E4F7",   // azul muy claro para filas alternas
+  blueBorder: "#A8C4E8",   // borde azul suave
+  gold:       "#C8A840",   // dorado solo para acentos críticos
+  goldLight:  "#F5EDD0",
+  gray:       "#6B7A8D",
+  grayLight:  "#E8EDF4",
+  text:       "#1A2B40",
+  textLight:  "#4A5A6E",
+};
+
+// ── Colores de actividades (claros, sobre fondo blanco) ──
+const ACTIVITY_COLORS = {
+  "Desayuno":      { bg: "#FFFBEA", border: "#C8A840", text: "#7A5C00" },
+  "Comida":        { bg: "#FFF3E0", border: "#E07800", text: "#8B4500" },
+  "Cena":          { bg: "#FFF3E0", border: "#E07800", text: "#8B4500" },
+  "Merienda":      { bg: "#FFFBEA", border: "#C8A840", text: "#7A5C00" },
+  "Partido":       { bg: "#EAF4EA", border: "#2E7D32", text: "#1B5020" },
+  "Calentamiento": { bg: "#E8F5E8", border: "#388E3C", text: "#1B5020" },
+  "Charla":        { bg: "#E8F0FC", border: "#1A4FAF", text: "#003087" },
+  "Salida Bus":    { bg: "#EDE8F8", border: "#5E35B1", text: "#311B7A" },
+  "Llegada":       { bg: "#EDE8F8", border: "#5E35B1", text: "#311B7A" },
+  "Descanso":      { bg: "#E0F4F8", border: "#0277BD", text: "#014D80" },
+  "Picnic":        { bg: "#FFFBEA", border: "#C8A840", text: "#7A5C00" },
+  "Vuelo":         { bg: "#E8F0FC", border: "#1A4FAF", text: "#003087" },
+  "default":       { bg: C.offWhite, border: C.blueBorder, text: C.textLight },
+};
+
+function getActivityColor(text) {
+  if (!text) return ACTIVITY_COLORS.default;
+  const l = text.toLowerCase();
+  if (l.includes("desayuno")) return ACTIVITY_COLORS["Desayuno"];
+  if (l.includes("comida") || l.includes("pizza")) return ACTIVITY_COLORS["Comida"];
+  if (l.includes("cena")) return ACTIVITY_COLORS["Cena"];
+  if (l.includes("merienda")) return ACTIVITY_COLORS["Merienda"];
+  if (l.includes("partido")) return ACTIVITY_COLORS["Partido"];
+  if (l.includes("calentamiento")) return ACTIVITY_COLORS["Calentamiento"];
+  if (l.includes("charla")) return ACTIVITY_COLORS["Charla"];
+  if (l.includes("salida")) return ACTIVITY_COLORS["Salida Bus"];
+  if (l.includes("llegada")) return ACTIVITY_COLORS["Llegada"];
+  if (l.includes("descanso")) return ACTIVITY_COLORS["Descanso"];
+  if (l.includes("picnic")) return ACTIVITY_COLORS["Picnic"];
+  if (l.includes("vuelo") || l.includes("ib ")) return ACTIVITY_COLORS["Vuelo"];
+  return ACTIVITY_COLORS.default;
+}
+
+const LIGA_MATCHES = [
+  { jornada:26, local:"RM Castilla",    visitante:"Ponferradina",    fecha:"2026-03-01", hora:"12:00", esLocal:true,  provisional:false },
+  { jornada:27, local:"Arenteiro",      visitante:"RM Castilla",     fecha:"2026-03-08", hora:"18:00", esLocal:false, provisional:false },
+  { jornada:28, local:"CD Lugo",        visitante:"RM Castilla",     fecha:"2026-03-15", hora:"18:30", esLocal:false, provisional:false },
+  { jornada:29, local:"RM Castilla",    visitante:"Zamora CF",       fecha:"2026-03-21", hora:"14:00", esLocal:true,  provisional:false },
+  { jornada:30, local:"Barakaldo",      visitante:"RM Castilla",     fecha:"2026-03-29", hora:"12:00", esLocal:false, provisional:true  },
+  { jornada:31, local:"RM Castilla",    visitante:"Celta Fortuna",   fecha:"2026-04-05", hora:"12:00", esLocal:true,  provisional:true  },
+  { jornada:32, local:"Racing Ferrol",  visitante:"RM Castilla",     fecha:"2026-04-12", hora:"12:00", esLocal:false, provisional:true  },
+  { jornada:33, local:"RM Castilla",    visitante:"Ourense CF",      fecha:"2026-04-19", hora:"12:00", esLocal:true,  provisional:true  },
+  { jornada:34, local:"CF Talavera",    visitante:"RM Castilla",     fecha:"2026-04-26", hora:"12:00", esLocal:false, provisional:true  },
+  { jornada:35, local:"RM Castilla",    visitante:"Unionistas CF",   fecha:"2026-05-03", hora:"12:00", esLocal:true,  provisional:true  },
+  { jornada:36, local:"CP Cacereño",    visitante:"RM Castilla",     fecha:"2026-05-10", hora:"12:00", esLocal:false, provisional:true  },
+  { jornada:37, local:"RM Castilla",    visitante:"Arenas de Getxo", fecha:"2026-05-17", hora:"12:00", esLocal:true,  provisional:true  },
+  { jornada:38, local:"CD Guadalajara", visitante:"RM Castilla",     fecha:"2026-05-24", hora:"12:00", esLocal:false, provisional:true  },
+];
+
+// ── Base de datos de estadios rivales (todos los visitantes del Grupo I) ──
+// Origen distancias: Ciudad Deportiva Real Madrid (Valdebebas), Madrid
+// Lat/Lng: coordenadas del estadio rival
+// dim: largo x ancho del terreno de juego
+// cesped: "natural" | "artificial" | "híbrido"
+// km: distancia por carretera aprox. desde Valdebebas
+// hBus: tiempo estimado en bus/autocar (horas)
+const STADIUM_DB = {
+  "Arenteiro": {
+    estadio:  "Estadio de Espiñedo",
+    ciudad:   "O Carballiño, Ourense",
+    lat: 42.4347, lng: -8.0800,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    2000,
+    km:       570, hBus: "6h 00min",
+  },
+  "CD Lugo": {
+    estadio:  "Estadio Anxo Carro",
+    ciudad:   "Lugo",
+    lat: 43.0033, lng: -7.5708,
+    dim:      "105 × 70",
+    cesped:   "natural",
+    aforo:    7114,
+    km:       500, hBus: "5h 15min",
+  },
+  "Barakaldo": {
+    estadio:  "Estadio de Lasesarre",
+    ciudad:   "Barakaldo, Vizcaya",
+    lat: 43.2969, lng: -2.9901,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    7960,
+    km:       415, hBus: "4h 30min",
+  },
+  "Racing Ferrol": {
+    estadio:  "Estadio de A Malata",
+    ciudad:   "Ferrol, A Coruña",
+    lat: 43.4864, lng: -8.2218,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    12043,
+    km:       590, hBus: "6h 15min",
+  },
+  "CF Talavera": {
+    estadio:  "Estadio El Prado",
+    ciudad:   "Talavera de la Reina, Toledo",
+    lat: 39.9621, lng: -4.8300,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    6000,
+    km:       120, hBus: "1h 30min",
+  },
+  "CP Cacereño": {
+    estadio:  "Estadio Príncipe Felipe",
+    ciudad:   "Cáceres",
+    lat: 39.4753, lng: -6.3724,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    14500,
+    km:       300, hBus: "3h 15min",
+  },
+  "CD Guadalajara": {
+    estadio:  "Estadio Municipal Pedro Escartín",
+    ciudad:   "Guadalajara",
+    lat: 40.6270, lng: -3.1660,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    6000,
+    km:       55, hBus: "0h 50min",
+  },
+  "AD Mérida": {
+    estadio:  "Estadio Romano José Fouto",
+    ciudad:   "Mérida, Badajoz",
+    lat: 38.9190, lng: -6.3380,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    14537,
+    km:       340, hBus: "3h 30min",
+  },
+  "Ponferradina": {
+    estadio:  "Estadio El Toralín",
+    ciudad:   "Ponferrada, León",
+    lat: 42.5490, lng: -6.5960,
+    dim:      "100 × 66",   // campo conocido por sus dimensiones pequeñas
+    cesped:   "natural",
+    aforo:    8432,
+    km:       330, hBus: "3h 30min",
+  },
+  "Pontevedra": {
+    estadio:  "Estadio Municipal de Pasarón",
+    ciudad:   "Pontevedra",
+    lat: 42.4302, lng: -8.6442,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    10500,
+    km:       595, hBus: "6h 00min",
+  },
+  "Zamora CF": {
+    estadio:  "Estadio Ruta de la Plata",
+    ciudad:   "Zamora",
+    lat: 41.5030, lng: -5.7500,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    7813,
+    km:       250, hBus: "2h 45min",
+  },
+  "Ourense CF": {
+    estadio:  "Estadio A Lomba",
+    ciudad:   "Vilagarcía de Arousa, Pontevedra",  // juegan aquí como local cedido
+    lat: 42.5986, lng: -8.7653,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    5000,
+    km:       605, hBus: "6h 15min",
+  },
+  "Celta Fortuna": {
+    estadio:  "Estadio de Balaídos (A Sede)",
+    ciudad:   "Vigo, Pontevedra",
+    lat: 42.2121, lng: -8.7378,
+    dim:      "100.9 × 65.5",  // campo auxiliar dimensiones reducidas
+    cesped:   "natural",
+    aforo:    1171,
+    km:       595, hBus: "6h 00min",
+  },
+  "Unionistas CF": {
+    estadio:  "Estadio Reina Sofía",
+    ciudad:   "Salamanca",
+    lat: 40.9651, lng: -5.6640,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    8500,
+    km:       210, hBus: "2h 15min",
+  },
+  "Arenas de Getxo": {
+    estadio:  "Estadio Las Llanas",
+    ciudad:   "Getxo, Vizcaya",
+    lat: 43.3500, lng: -3.0100,
+    dim:      "100 × 65",
+    cesped:   "natural",
+    aforo:    5000,
+    km:       420, hBus: "4h 30min",
+  },
+  "CD Tenerife": {
+    estadio:  "Estadio Heliodoro Rodríguez López",
+    ciudad:   "Santa Cruz de Tenerife",
+    lat: 28.4628, lng: -16.2524,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    22824,
+    km:       null, hBus: "vuelo ~2h 30min",
+  },
+  "Real Avilés": {
+    estadio:  "Estadio Romano",
+    ciudad:   "Avilés, Asturias",
+    lat: 43.5556, lng: -5.9248,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    7500,
+    km:       445, hBus: "4h 45min",
+  },
+  "Bilbao Athletic": {
+    estadio:  "Estadio de Lezama",
+    ciudad:   "Lezama, Vizcaya",
+    lat: 43.2272, lng: -2.8946,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    5000,
+    km:       400, hBus: "4h 15min",
+  },
+  "Osasuna Promesas": {
+    estadio:  "Complejo Deportivo de Tajonar",
+    ciudad:   "Tajonar, Navarra",
+    lat: 42.7540, lng: -1.6020,
+    dim:      "105 × 68",
+    cesped:   "natural",
+    aforo:    5000,
+    km:       375, hBus: "4h 00min",
+  },
+};
+
+// Helpers de búsqueda flexible en STADIUM_DB
+function getStadiumInfo(rivalName) {
+  if (!rivalName) return null;
+  const direct = STADIUM_DB[rivalName];
+  if (direct) return direct;
+  // búsqueda parcial
+  const key = Object.keys(STADIUM_DB).find(k =>
+    rivalName.toLowerCase().includes(k.toLowerCase()) ||
+    k.toLowerCase().includes(rivalName.toLowerCase())
+  );
+  return key ? STADIUM_DB[key] : null;
+}
+const DIAS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const MESES = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+function formatDate(d) { return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`; }
+
+function generateTimeSlots() {
+  const s = [];
+  for (let h = 7; h <= 23; h++) { s.push(`${String(h).padStart(2,"0")}:00`); s.push(`${String(h).padStart(2,"0")}:30`); }
+  s.push("00:00");
+  return s;
+}
+const TIME_SLOTS = generateTimeSlots();
+
+// ── Shared button style ──
+const btnPrimary = { background: C.blueDeep, color: C.white, border:"none", borderRadius:5, padding:"8px 18px", fontWeight:700, fontSize:12, cursor:"pointer", letterSpacing:.5, fontFamily:"inherit" };
+const btnSecondary = { background: C.white, color: C.blueDeep, border:`1.5px solid ${C.blueDeep}`, borderRadius:5, padding:"8px 18px", fontWeight:700, fontSize:12, cursor:"pointer", letterSpacing:.5, fontFamily:"inherit" };
+const btnGhost = { background: "transparent", color: C.gray, border:`1px solid ${C.grayLight}`, borderRadius:5, padding:"7px 14px", fontSize:12, cursor:"pointer", fontFamily:"inherit" };
+
+export default function CastillaPlanner() {
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [customMatches, setCustomMatches] = useState([]);
+  const [activeTab, setActiveTab] = useState("horario");
+  const [showAddMatch, setShowAddMatch] = useState(false);
+  const [showMatchDropdown, setShowMatchDropdown] = useState(false);
+  const [daysBefore, setDaysBefore] = useState(1);
+  const [daysAfter, setDaysAfter]   = useState(0);
+  const [scheduleEntries, setScheduleEntries] = useState({});
+  const [editingCell, setEditingCell] = useState(null);
+  const [cellText, setCellText]       = useState("");
+  const [dragging, setDragging]       = useState(null);  // activity name being dragged
+  const [dragOver, setDragOver]       = useState(null);  // cell key being hovered
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const scheduleRef = useRef(null);
+
+  async function handleExportPDF() {
+    if (!scheduleRef.current) return;
+    setPdfGenerating(true);
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) return resolve();
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    try {
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+
+      const element = scheduleRef.current;
+      const canvas = await window.html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 8;
+      const usableW = pageW - margin * 2;
+      const usableH = pageH - margin * 2;
+      const canvasW = canvas.width;
+      const canvasH = canvas.height;
+      const ratio = usableW / canvasW;          // mm per px
+      const totalRenderedH = canvasH * ratio;   // total height in mm if printed in one go
+
+      // How many px fit on one page
+      const pxPerPage = Math.floor(usableH / ratio);
+      let pageTop = 0; // px offset into canvas
+      let pageNum = 0;
+
+      while (pageTop < canvasH) {
+        if (pageNum > 0) pdf.addPage();
+        const slicePx = Math.min(pxPerPage, canvasH - pageTop);
+
+        // Create a slice canvas
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width  = canvasW;
+        sliceCanvas.height = slicePx;
+        const ctx = sliceCanvas.getContext("2d");
+        ctx.drawImage(canvas, 0, pageTop, canvasW, slicePx, 0, 0, canvasW, slicePx);
+
+        const sliceData = sliceCanvas.toDataURL("image/jpeg", 0.92);
+        const sliceH = slicePx * ratio;
+        pdf.addImage(sliceData, "JPEG", margin, margin, usableW, sliceH);
+
+        pageTop += pxPerPage;
+        pageNum++;
+        if (pageNum > 20) break;
+      }
+
+      const rivalName = match ? (match.esLocal ? match.visitante : match.local) : "partido";
+      const filename = `Horario_RMCastilla_${rivalName.replace(/\s+/g,"_")}_${match?.fecha || ""}.pdf`;
+      pdf.save(filename);
+    } catch (err) {
+      console.error("PDF error:", err);
+      alert("No se pudo generar el PDF. Intenta usar Ctrl+P para imprimir.");
+    } finally {
+      setPdfGenerating(false);
+    }
+  }
+  const [travelInfo, setTravelInfo]   = useState({ hotel:"", hotelDir:"", campo:"", campoDim:"", distCRM:"", distHotel:"" });
+  const [newMatch, setNewMatch]       = useState({ jornada:"", local:"RM Castilla", visitante:"", fecha:"", hora:"12:00", esLocal:true, competicion:"Copa" });
+
+  // ── ACTUALIZAR CALENDARIO ──
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateText, setUpdateText]           = useState("");
+  const [updateResult, setUpdateResult]       = useState(null); // { updated:[], notFound:[], raw:[] }
+  const [ligaMatches, setLigaMatches]         = useState(LIGA_MATCHES);
+
+  function parseCalendarText(text) {
+    // Patrones que detecta:
+    // "J30 · 29/03/2026 · 18:00" o "Jornada 30 ... 29 de marzo ... 18:00"
+    // "Barakaldo - RM Castilla  29/03/2026  18:00"
+    // "29/03  18:00  Barakaldo vs Castilla"
+    // Formato RFEF: "J30 Barakaldo - Real Madrid Castilla 29/03/2026 18:00"
+    const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+    const results = [];
+
+    // Regex para capturar fecha dd/mm/yyyy o dd/mm/yy o dd-mm-yyyy
+    const rFecha = /(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/;
+    // Regex hora HH:MM
+    const rHora = /\b(\d{1,2}):(\d{2})\b/;
+    // Jornada
+    const rJornada = /[Jj](?:ornada\s*)?(\d{1,2})/;
+
+    for (const line of lines) {
+      const fechaM = line.match(rFecha);
+      const horaM  = line.match(rHora);
+      if (!fechaM) continue; // sin fecha no sirve
+
+      const dia = fechaM[1].padStart(2,"0");
+      const mes = fechaM[2].padStart(2,"0");
+      let anyo = fechaM[3] ? fechaM[3] : "2026";
+      if (anyo.length === 2) anyo = "20" + anyo;
+      const fecha = `${anyo}-${mes}-${dia}`;
+
+      const hora = horaM ? `${horaM[1].padStart(2,"0")}:${horaM[2]}` : null;
+      const jM   = line.match(rJornada);
+      const jornada = jM ? parseInt(jM[1]) : null;
+
+      results.push({ fecha, hora, jornada, raw: line });
+    }
+    return results;
+  }
+
+  function applyCalendarUpdate() {
+    const parsed = parseCalendarText(updateText);
+    if (!parsed.length) {
+      setUpdateResult({ updated:[], notFound:[], raw:[] });
+      return;
+    }
+
+    const updated   = [];
+    const notFound  = [];
+    const newMatches = ligaMatches.map(m => ({ ...m }));
+
+    for (const p of parsed) {
+      // Intentamos emparejar por jornada primero, luego por fecha aproximada
+      let idx = -1;
+      if (p.jornada) {
+        idx = newMatches.findIndex(m => m.jornada === p.jornada);
+      }
+      if (idx === -1 && p.fecha) {
+        // buscar por fecha exacta
+        idx = newMatches.findIndex(m => m.fecha === p.fecha);
+      }
+      if (idx === -1 && p.fecha) {
+        // buscar por fecha ±3 días
+        const ts = new Date(p.fecha).getTime();
+        idx = newMatches.findIndex(m => Math.abs(new Date(m.fecha).getTime() - ts) <= 3*86400000);
+      }
+
+      if (idx !== -1) {
+        const before = { fecha: newMatches[idx].fecha, hora: newMatches[idx].hora };
+        if (p.fecha) newMatches[idx].fecha = p.fecha;
+        if (p.hora)  newMatches[idx].hora  = p.hora;
+        newMatches[idx].provisional = false;
+        updated.push({ jornada: newMatches[idx].jornada, rival: newMatches[idx].local === "RM Castilla" ? newMatches[idx].visitante : newMatches[idx].local, before, after: { fecha: newMatches[idx].fecha, hora: newMatches[idx].hora } });
+      } else {
+        notFound.push(p.raw);
+      }
+    }
+
+    setLigaMatches(newMatches);
+    setUpdateResult({ updated, notFound, raw: parsed });
+  }
+
+  // ── VOZ ──
+  const [voiceActive, setVoiceActive]   = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceResult, setVoiceResult]   = useState(null);  // { ok, message }
+  const recognitionRef = useRef(null);
+
+  // Mapas de palabras habladas → valores normalizados
+  const HORA_WORDS = {
+    "cero":0,"uno":1,"una":1,"dos":2,"tres":3,"cuatro":4,"cinco":5,"seis":6,
+    "siete":7,"ocho":8,"nueve":9,"diez":10,"once":11,"doce":12,"trece":13,
+    "catorce":14,"quince":15,"dieciséis":16,"diecisiete":17,"dieciocho":18,
+    "diecinueve":19,"veinte":20,"veintiuno":21,"veintidós":22,"veintitrés":23,
+  };
+  const MINUTO_WORDS = { "cero":0,"y cuarto":15,"y media":30,"menos cuarto":45,
+    "treinta":30,"quince":15,"cuarenta y cinco":45,"00":0,"30":30,"15":15,"45":45 };
+  const DIA_WORDS = {
+    "lunes":"Lun","martes":"Mar","miércoles":"Mié","jueves":"Jue",
+    "viernes":"Vie","sábado":"Sáb","domingo":"Dom",
+  };
+
+  function parseVoiceCommand(transcript) {
+    const t = transcript.toLowerCase().trim();
+
+    // ── 1. Encontrar actividad ──
+    const activityKeys = Object.keys(ACTIVITY_COLORS).filter(k => k !== "default");
+    let foundActivity = null;
+    for (const act of activityKeys) {
+      if (t.includes(act.toLowerCase())) { foundActivity = act; break; }
+    }
+    // aliases
+    if (!foundActivity) {
+      if (t.includes("bus")) foundActivity = "Salida Bus";
+      if (t.includes("avión") || t.includes("vuelo")) foundActivity = "Vuelo";
+      if (t.includes("comer") || t.includes("almuerzo")) foundActivity = "Comida";
+      if (t.includes("cenar")) foundActivity = "Cena";
+      if (t.includes("dormir") || t.includes("descansar")) foundActivity = "Descanso";
+    }
+
+    // ── 2. Encontrar hora ──
+    // Intenta primero formato numérico: "9:30", "21:00"
+    let hour = null, minute = 0;
+    const numMatch = t.match(/\b(\d{1,2})[:h\s](\d{2})\b/);
+    if (numMatch) {
+      hour = parseInt(numMatch[1]);
+      minute = parseInt(numMatch[2]);
+    } else {
+      // Palabras: "nueve y media", "ocho treinta", "las once"
+      for (const [word, val] of Object.entries(HORA_WORDS)) {
+        const re = new RegExp(`\\b(las?\\s+)?${word}\\b`);
+        if (re.test(t)) { hour = val; break; }
+      }
+      if (hour !== null) {
+        if (t.includes("y media"))        minute = 30;
+        else if (t.includes("y cuarto"))  minute = 15;
+        else if (t.includes("treinta"))   minute = 30;
+        else if (t.includes("cuarenta y cinco")) minute = 45;
+        else if (t.includes("quince"))    minute = 15;
+        else                              minute = 0;
+      }
+    }
+
+    // ── 3. Encontrar día ──
+    let foundDayPrefix = null;
+    for (const [word, prefix] of Object.entries(DIA_WORDS)) {
+      if (t.includes(word)) { foundDayPrefix = prefix; break; }
+    }
+
+    // ── 4. Resolver celda ──
+    if (hour === null) return { ok: false, message: `No entendí la hora en: "${transcript}"` };
+    if (!foundActivity) return { ok: false, message: `No entendí la actividad en: "${transcript}"` };
+
+    const timeStr = `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+
+    // Encontrar columna correcta
+    let targetDay = null;
+    if (foundDayPrefix) {
+      targetDay = dayColumns.find(d => formatDate(d).startsWith(foundDayPrefix)) || null;
+    }
+    if (!targetDay && dayColumns.length === 1) targetDay = dayColumns[0];
+    if (!targetDay && dayColumns.length > 0) {
+      // Si no se dijo día, usar el día del partido
+      const md = new Date(match.fecha + "T12:00:00");
+      targetDay = dayColumns.find(d => d.toDateString() === md.toDateString()) || dayColumns[0];
+    }
+
+    if (!targetDay) return { ok: false, message: "No pude identificar el día." };
+
+    // Verificar que el slot existe
+    if (!TIME_SLOTS.includes(timeStr)) {
+      // Redondear al slot más cercano
+      const slots30 = [0,30];
+      const closestMin = slots30.reduce((a,b) => Math.abs(b-minute)<Math.abs(a-minute)?b:a);
+      const adjTime = `${String(hour).padStart(2,"0")}:${String(closestMin).padStart(2,"0")}`;
+      if (!TIME_SLOTS.includes(adjTime)) return { ok:false, message:`Hora ${timeStr} fuera de rango (07:00–00:00).` };
+      minute = closestMin;
+    }
+
+    const finalTime = `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+    const dayLabel  = formatDate(targetDay);
+    const key       = cellKey(dayLabel, finalTime);
+    const entry     = `${finalTime} ${foundActivity}`;
+
+    return { ok:true, key, entry, dayLabel, time:finalTime, activity:foundActivity,
+      message:`✓ ${foundActivity} · ${finalTime} · ${dayLabel}` };
+  }
+
+  function startVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceResult({ ok:false, message:"Tu navegador no soporta reconocimiento de voz. Usa Chrome o Safari." });
+      return;
+    }
+    const rec = new SpeechRecognition();
+    rec.lang = "es-ES";
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.maxAlternatives = 3;
+
+    rec.onstart  = () => { setVoiceActive(true); setVoiceTranscript(""); setVoiceResult(null); };
+    rec.onend    = () => setVoiceActive(false);
+    rec.onerror  = (e) => { setVoiceActive(false); setVoiceResult({ ok:false, message:`Error: ${e.error}` }); };
+
+    rec.onresult = (e) => {
+      const interim = Array.from(e.results).map(r => r[0].transcript).join(" ");
+      setVoiceTranscript(interim);
+      if (e.results[e.results.length-1].isFinal) {
+        // Try all alternatives
+        let parsed = null;
+        for (let i = 0; i < e.results[0].length; i++) {
+          const alt = e.results[0][i].transcript;
+          const result = parseVoiceCommand(alt);
+          if (result.ok) { parsed = result; break; }
+        }
+        if (!parsed) parsed = parseVoiceCommand(interim);
+        if (parsed.ok) {
+          setScheduleEntries(prev => ({ ...prev, [parsed.key]: parsed.entry }));
+        }
+        setVoiceResult(parsed);
+      }
+    };
+
+    recognitionRef.current = rec;
+    rec.start();
+  }
+
+  function stopVoice() {
+    recognitionRef.current?.stop();
+    setVoiceActive(false);
+  }
+
+  const allMatches = [...ligaMatches, ...customMatches];
+  const match = selectedMatch !== null ? allMatches[selectedMatch] : null;
+  const rival = match ? (match.esLocal ? match.visitante : match.local) : "";
+  const competicion = match ? (match.competicion || "Primera Federación") : "";
+
+  function getDayColumns() {
+    if (!match) return [];
+    const md = new Date(match.fecha + "T12:00:00");
+    const cols = [];
+    for (let i = daysBefore; i >= 1; i--) { const d = new Date(md); d.setDate(md.getDate()-i); cols.push(d); }
+    cols.push(md);
+    for (let i = 1; i <= daysAfter; i++) { const d = new Date(md); d.setDate(md.getDate()+i); cols.push(d); }
+    return cols;
+  }
+
+  const dayColumns = getDayColumns();
+  const isMatchDay = (d) => match && d.toISOString().slice(0,10) === match.fecha;
+  const cellKey = (day, time) => `${day}__${time}`;
+
+  function handleCellClick(dayLabel, time) {
+    const key = cellKey(dayLabel, time);
+    setEditingCell(key);
+    setCellText(scheduleEntries[key] || "");
+  }
+  function handleCellSave() {
+    if (editingCell) { setScheduleEntries(p => ({...p, [editingCell]: cellText})); setEditingCell(null); }
+  }
+
+  function handleDrop(dayLabel, time) {
+    if (!dragging) return;
+    const key = cellKey(dayLabel, time);
+    // Build label: "HH:MM ActivityName"
+    const entry = `${time} ${dragging}`;
+    setScheduleEntries(p => ({...p, [key]: entry}));
+    setDragging(null);
+    setDragOver(null);
+  }
+
+  return (
+    <div style={{ fontFamily:"'Georgia','Times New Roman',serif", minHeight:"100vh", background:C.offWhite, color:C.text }}>
+
+      {/* ══ HEADER ══ */}
+      <div style={{ background:C.blueDeep, borderBottom:`4px solid ${C.gold}` }}>
+        <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px", display:"flex", alignItems:"center", gap:16, height:72 }}>
+          <img src={RM_LOGO} alt="Real Madrid CF" style={{ width:50, height:50, borderRadius:"50%", objectFit:"cover", border:`2px solid ${C.gold}`, flexShrink:0 }} />
+          <div>
+            <div style={{ fontSize:19, fontWeight:700, color:C.white, letterSpacing:.3, fontFamily:"'Georgia',serif" }}>
+              Real Madrid Castilla
+            </div>
+            <div style={{ fontSize:10, color:"#A8C4E8", letterSpacing:2.5, fontFamily:"'Arial',sans-serif", fontWeight:400, textTransform:"uppercase" }}>
+              Planificación de Partidos · Primera Federación 2025/26
+            </div>
+          </div>
+          {/* Right side controls */}
+          <div style={{ marginLeft:"auto", display:"flex", gap:10, alignItems:"center" }}>
+
+            {/* ── Custom match selector ── */}
+            {(() => {
+              const today = new Date(); today.setHours(0,0,0,0);
+              const allM  = [...ligaMatches, ...customMatches];
+              const selM  = selectedMatch != null ? allM[selectedMatch] : null;
+              const triggerLabel = selM
+                ? `J${selM.jornada} · ${selM.fecha} · ${selM.local} vs ${selM.visitante}`
+                : "— Seleccionar partido —";
+              const nextIdx = ligaMatches.findIndex(x => { const d=new Date(x.fecha); d.setHours(0,0,0,0); return d>=today; });
+
+              return (
+                <div style={{ position:"relative" }}>
+                  <button
+                    onClick={() => setShowMatchDropdown(v => !v)}
+                    style={{ background:C.white, color:C.blueDeep, border:"none", borderRadius:5,
+                      padding:"8px 36px 8px 12px", fontSize:13, minWidth:300, fontFamily:"inherit",
+                      fontWeight:600, cursor:"pointer", textAlign:"left", position:"relative",
+                      whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}
+                  >
+                    {triggerLabel}
+                    <span style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", fontSize:10, color:C.gray }}>
+                      {showMatchDropdown ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {showMatchDropdown && (
+                    <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, zIndex:300,
+                      background:C.white, borderRadius:8, boxShadow:"0 8px 32px rgba(0,48,135,.22)",
+                      border:`1px solid ${C.blueBorder}`, minWidth:360, maxWidth:430,
+                      maxHeight:440, overflowY:"auto" }}
+                      onMouseLeave={() => setShowMatchDropdown(false)}
+                    >
+                      <div
+                        onClick={() => { setSelectedMatch(null); setShowMatchDropdown(false); setScheduleEntries({}); setActiveTab("horario"); setDaysBefore(1); setDaysAfter(0); }}
+                        style={{ padding:"10px 14px", fontSize:12, color:C.gray, cursor:"pointer",
+                          borderBottom:`1px solid ${C.grayLight}`,
+                          background: selectedMatch == null ? C.blueLight : "transparent" }}
+                      >
+                        — Seleccionar partido —
+                      </div>
+
+                      <div style={{ padding:"5px 14px 3px", fontSize:10, fontWeight:700,
+                        color:C.textLight, letterSpacing:1.5, textTransform:"uppercase",
+                        fontFamily:"'Arial',sans-serif", background:C.offWhite,
+                        borderBottom:`1px solid ${C.grayLight}` }}>
+                        Primera Federación 2026
+                      </div>
+
+                      {ligaMatches.map((m, i) => {
+                        const mDate = new Date(m.fecha); mDate.setHours(0,0,0,0);
+                        const isPast    = mDate < today;
+                        const isToday   = mDate.getTime() === today.getTime();
+                        const isNext    = i === nextIdx;
+                        const isSelected = selectedMatch === i;
+                        const rival = m.esLocal ? m.visitante : m.local;
+                        const venue = m.esLocal ? "🏠" : "✈️";
+
+                        let rowBg = "transparent";
+                        if (isSelected) rowBg = C.blueLight;
+                        else if (isToday) rowBg = "#EAF4EA";
+                        else if (isPast)  rowBg = "#F9F9F9";
+
+                        return (
+                          <div key={i}
+                            onClick={() => { if(isPast) return; setSelectedMatch(i); setShowMatchDropdown(false); setScheduleEntries({}); setActiveTab("horario"); setDaysBefore(1); setDaysAfter(0); }}
+                            style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px",
+                              cursor: isPast ? "default" : "pointer",
+                              background: rowBg,
+                              borderBottom:`1px solid ${C.grayLight}`,
+                              opacity: isPast ? 0.42 : 1 }}
+                            onMouseEnter={e => { if(!isPast && !isSelected) e.currentTarget.style.background=C.blueLight; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = isSelected ? C.blueLight : isPast ? "#F9F9F9" : isToday ? "#EAF4EA" : "transparent"; }}
+                          >
+                            <span style={{ minWidth:28, height:22, borderRadius:4,
+                              background: isPast ? C.grayLight : isNext ? C.gold : C.blueDeep,
+                              color: isPast ? C.gray : C.white, fontSize:10, fontWeight:700,
+                              display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              J{m.jornada}
+                            </span>
+                            <div style={{ flex:1, minWidth:0 }}>
+                              <div style={{ fontSize:12, fontWeight: isNext ? 700 : 600,
+                                color: isPast ? C.gray : C.text,
+                                whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                                {venue} {rival}
+                                {isNext && <span style={{ marginLeft:6, fontSize:9, background:C.gold, color:"#FFF", borderRadius:3, padding:"1px 5px", fontWeight:700 }}>PRÓXIMO</span>}
+                                {isToday && <span style={{ marginLeft:6, fontSize:9, background:"#2E7D32", color:"#FFF", borderRadius:3, padding:"1px 5px", fontWeight:700 }}>HOY</span>}
+                                {m.provisional && !isPast && <span style={{ marginLeft:5, fontSize:9, color:C.gold }}>⚠</span>}
+                              </div>
+                              <div style={{ fontSize:10, color: isPast ? "#BBB" : C.textLight, fontFamily:"'Arial',sans-serif" }}>
+                                {m.fecha} · {m.hora}h{isPast ? " · Jugado" : ""}
+                              </div>
+                            </div>
+                            {isSelected && <span style={{ color:C.blueDeep, fontSize:14, flexShrink:0 }}>✓</span>}
+                          </div>
+                        );
+                      })}
+
+                      {customMatches.length > 0 && (
+                        <>
+                          <div style={{ padding:"5px 14px 3px", fontSize:10, fontWeight:700,
+                            color:C.textLight, letterSpacing:1.5, textTransform:"uppercase",
+                            fontFamily:"'Arial',sans-serif", background:C.offWhite,
+                            borderTop:`2px solid ${C.blueBorder}`, borderBottom:`1px solid ${C.grayLight}` }}>
+                            Añadidos manualmente
+                          </div>
+                          {customMatches.map((m, i) => {
+                            const idx2 = ligaMatches.length + i;
+                            const isSel = selectedMatch === idx2;
+                            return (
+                              <div key={i}
+                                onClick={() => { setSelectedMatch(idx2); setShowMatchDropdown(false); setScheduleEntries({}); setActiveTab("horario"); setDaysBefore(1); setDaysAfter(0); }}
+                                style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px",
+                                  cursor:"pointer", background: isSel ? C.blueLight : "transparent",
+                                  borderBottom:`1px solid ${C.grayLight}` }}
+                                onMouseEnter={e => { if(!isSel) e.currentTarget.style.background=C.blueLight; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = isSel ? C.blueLight : "transparent"; }}
+                              >
+                                <span style={{ minWidth:28, height:22, borderRadius:4, background:"#5E35B1",
+                                  color:"#FFF", fontSize:10, fontWeight:700,
+                                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                  {(m.competicion||"CUP").slice(0,3).toUpperCase()}
+                                </span>
+                                <div style={{ flex:1, minWidth:0 }}>
+                                  <div style={{ fontSize:12, fontWeight:600, color:C.text, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                                    {m.local} vs {m.visitante}
+                                  </div>
+                                  <div style={{ fontSize:10, color:C.textLight, fontFamily:"'Arial',sans-serif" }}>
+                                    {m.fecha} · {m.hora}h
+                                  </div>
+                                </div>
+                                {isSel && <span style={{ color:C.blueDeep, fontSize:14 }}>✓</span>}
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+            <button onClick={() => setShowAddMatch(true)}
+              style={{ ...btnSecondary, border:`1.5px solid ${C.gold}`, color:C.gold }}>
+              + Partido
+            </button>
+            <button onClick={() => { setShowUpdateModal(true); setUpdateText(""); setUpdateResult(null); }}
+              style={{ ...btnSecondary, border:`1.5px solid #0277BD`, color:`#0277BD` }}
+              title="Pegar texto de la RFEF para actualizar fechas y horas">
+              🔄 Actualizar fechas
+            </button>
+            {match && (
+              <button onClick={handleExportPDF} disabled={pdfGenerating}
+                style={{ ...btnPrimary, background:C.gold, color:C.blueDeep, opacity: pdfGenerating ? 0.7 : 1 }}>
+                {pdfGenerating ? "⏳ Generando..." : "⬇ Descargar PDF"}
+              </button>
+            )}
+            {match && activeTab==="horario" && (
+              <button
+                onClick={voiceActive ? stopVoice : startVoice}
+                title="Dictar actividad por voz"
+                style={{
+                  background: voiceActive ? "#E53E3E" : C.white,
+                  color:      voiceActive ? C.white   : C.blueDeep,
+                  border:     voiceActive ? "none"    : `1.5px solid ${C.blueBorder}`,
+                  borderRadius: "50%", width:40, height:40,
+                  fontSize:18, cursor:"pointer", display:"flex",
+                  alignItems:"center", justifyContent:"center",
+                  boxShadow: voiceActive ? "0 0 0 4px rgba(229,62,62,.3)" : "none",
+                  animation: voiceActive ? "pulse 1.2s infinite" : "none",
+                  flexShrink:0,
+                }}>
+                {voiceActive ? "⏹" : "🎙"}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ MATCH BAR ══ */}
+      {match && (
+        <div style={{ background:C.white, borderBottom:`1px solid ${C.blueBorder}`, boxShadow:"0 2px 8px rgba(0,48,135,0.07)" }}>
+          <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px", display:"flex", alignItems:"center", gap:20, height:60 }}>
+
+            {/* Match title */}
+            <div style={{ flex:1 }}>
+              <span style={{ fontFamily:"'Georgia',serif", fontSize:16, fontWeight:700, color:C.blueDeep, letterSpacing:.2 }}>
+                {match.esLocal
+                  ? `RM Castilla — ${rival}`
+                  : `${rival} — RM Castilla`}
+              </span>
+              <span style={{ marginLeft:14, fontSize:12, color:C.textLight, fontFamily:"'Arial',sans-serif" }}>
+                {competicion}{match.jornada ? ` · J${match.jornada}`:""} · {match.fecha} · {match.hora}h · {match.esLocal ? "Local":"Visitante"}
+                {match.provisional && (
+                  <span style={{ marginLeft:8, background:C.goldLight, color:"#7A5C00", border:`1px solid ${C.gold}`, borderRadius:3, padding:"1px 7px", fontSize:10, fontWeight:700 }}>
+                    FECHA PROVISIONAL
+                  </span>
+                )}
+              </span>
+            </div>
+
+            {/* Day controls */}
+            <div style={{ display:"flex", alignItems:"center", gap:6, borderLeft:`1px solid ${C.grayLight}`, paddingLeft:20 }}>
+              <span style={{ fontSize:11, color:C.textLight, fontFamily:"'Arial',sans-serif", marginRight:4 }}>Días:</span>
+              <button onClick={() => setDaysBefore(b => Math.max(0,b-1))} disabled={daysBefore===0}
+                style={{ ...btnGhost, padding:"4px 10px", opacity:daysBefore===0?0.35:1 }}>−</button>
+              <span style={{ fontSize:12, color:C.blueDeep, fontWeight:700, minWidth:52, textAlign:"center", fontFamily:"'Arial',sans-serif" }}>
+                {daysBefore} antes
+              </span>
+              <button onClick={() => setDaysBefore(b => Math.min(3,b+1))}
+                style={{ ...btnGhost, padding:"4px 10px" }}>+</button>
+              <span style={{ color:C.grayLight, margin:"0 4px" }}>|</span>
+              <button onClick={() => setDaysAfter(a => Math.max(0,a-1))} disabled={daysAfter===0}
+                style={{ ...btnGhost, padding:"4px 10px", opacity:daysAfter===0?0.35:1 }}>−</button>
+              <span style={{ fontSize:12, color:C.blueDeep, fontWeight:700, minWidth:56, textAlign:"center", fontFamily:"'Arial',sans-serif" }}>
+                {daysAfter} después
+              </span>
+              <button onClick={() => setDaysAfter(a => Math.min(3,a+1))}
+                style={{ ...btnGhost, padding:"4px 10px" }}>+</button>
+            </div>
+
+            {/* Tabs */}
+            <div style={{ display:"flex", gap:0, borderLeft:`1px solid ${C.grayLight}`, paddingLeft:20 }}>
+              {[
+                { key:"horario",     label:"Horario" },
+                { key:"viaje-campo", label:"Viaje & Campo" },
+                { key:"hotel",       label:"Hotel" },
+              ].map((t,i) => (
+                <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
+                  background: activeTab===t.key ? C.blueDeep : "transparent",
+                  color: activeTab===t.key ? C.white : C.textLight,
+                  border: `1px solid ${activeTab===t.key ? C.blueDeep : C.grayLight}`,
+                  borderRadius: i===0 ? "5px 0 0 5px" : i===2 ? "0 5px 5px 0" : 0,
+                  marginLeft: -1, padding:"6px 16px", fontSize:12, fontWeight:600, cursor:"pointer",
+                  fontFamily:"'Arial',sans-serif", letterSpacing:.3
+                }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ CONTENT ══ */}
+      <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px" }}>
+
+        {!match ? (
+          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:420, gap:14 }}>
+            <img src={RM_LOGO} alt="" style={{ width:72, height:72, borderRadius:"50%", opacity:.18 }} />
+            <p style={{ fontSize:16, color:C.gray, fontFamily:"'Georgia',serif", fontStyle:"italic" }}>
+              Selecciona un partido para comenzar
+            </p>
+            <p style={{ fontSize:11, color:"#B0B8C4", fontFamily:"'Arial',sans-serif" }}>
+              Los partidos marcados con ⚠ tienen fecha provisional (domingo por defecto hasta confirmación oficial)
+            </p>
+          </div>
+
+        ) : activeTab === "horario" ? (
+
+          /* ── HORARIO ── */
+          <div ref={scheduleRef} style={{ paddingTop:20, paddingBottom:32 }}>
+            {match.provisional && (
+              <div style={{ background:C.goldLight, border:`1px solid ${C.gold}`, borderRadius:6, padding:"10px 16px", marginBottom:16, fontSize:12, color:"#7A5C00", fontFamily:"'Arial',sans-serif" }}>
+                <strong>Fecha provisional:</strong> El partido figura en domingo por defecto. La hora y fecha se confirman habitualmente 15–20 días antes.
+              </div>
+            )}
+
+            {/* ── VOZ: feedback banner ── */}
+            {(voiceActive || voiceTranscript || voiceResult) && (
+              <div style={{
+                background: voiceActive ? "#003087" : voiceResult?.ok ? "#EAF4EA" : voiceResult ? "#FFF0F0" : C.offWhite,
+                border: `1.5px solid ${voiceActive ? C.gold : voiceResult?.ok ? "#2E7D32" : voiceResult ? "#E53E3E" : C.blueBorder}`,
+                borderRadius:8, padding:"12px 18px", marginBottom:16,
+                display:"flex", alignItems:"center", gap:14, fontFamily:"'Arial',sans-serif",
+              }}>
+                {/* Mic icon / status */}
+                <div style={{
+                  width:40, height:40, borderRadius:"50%", flexShrink:0,
+                  background: voiceActive ? "#E53E3E" : voiceResult?.ok ? "#2E7D32" : "#CBD5E0",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:18,
+                  boxShadow: voiceActive ? "0 0 0 6px rgba(229,62,62,.25)" : "none",
+                  animation: voiceActive ? "pulse 1.2s infinite" : "none",
+                }}>
+                  {voiceActive ? "🎙" : voiceResult?.ok ? "✓" : voiceResult ? "✕" : "🎙"}
+                </div>
+                <div style={{ flex:1 }}>
+                  {voiceActive && (
+                    <div style={{ fontSize:11, color:C.gold, fontWeight:700, letterSpacing:1, marginBottom:3 }}>
+                      ESCUCHANDO… habla ahora
+                    </div>
+                  )}
+                  {voiceTranscript && (
+                    <div style={{ fontSize:14, color: voiceActive ? C.white : C.text, fontStyle:"italic" }}>
+                      "{voiceTranscript}"
+                    </div>
+                  )}
+                  {voiceResult && (
+                    <div style={{ fontSize:12, color: voiceResult.ok ? "#1B5020" : "#C53030", fontWeight:700, marginTop: voiceTranscript ? 4 : 0 }}>
+                      {voiceResult.message}
+                    </div>
+                  )}
+                  {!voiceActive && !voiceTranscript && !voiceResult && (
+                    <div style={{ fontSize:12, color:C.textLight }}>
+                      Di algo como: <em>"nueve treinta desayuno sábado"</em> o <em>"partido veintiuno sábado"</em>
+                    </div>
+                  )}
+                </div>
+                {!voiceActive && (
+                  <button onClick={() => { setVoiceTranscript(""); setVoiceResult(null); }}
+                    style={{ ...btnGhost, padding:"4px 10px", fontSize:11 }}>✕</button>
+                )}
+              </div>
+            )}
+
+            <div style={{ overflowX:"auto", borderRadius:8, border:`1px solid ${C.blueBorder}`, boxShadow:"0 2px 12px rgba(0,48,135,0.08)" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", minWidth: 220+dayColumns.length*180, background:C.white }}>
+                <thead>
+                  <tr>
+                    <th style={{ width:62, background:C.blueDeep, color:C.white, padding:"10px 6px", fontSize:10, letterSpacing:1.5, border:`1px solid ${C.blueMid}`, textAlign:"center", fontFamily:"'Arial',sans-serif" }}>
+                      HORA
+                    </th>
+                    {dayColumns.map((d,i) => {
+                      const isMatch = isMatchDay(d);
+                      return (
+                        <th key={i} style={{
+                          background: isMatch ? C.blueDeep : C.blueMid,
+                          color: C.white,
+                          padding: isMatch ? "9px 10px" : "10px 10px",
+                          fontSize: 11, letterSpacing: 1,
+                          border: isMatch ? `2px solid ${C.gold}` : `1px solid ${C.blueMid}`,
+                          textAlign:"center", fontFamily:"'Arial',sans-serif", fontWeight:700,
+                        }}>
+                          {formatDate(d).toUpperCase()}
+                          {isMatch && (
+                            <div style={{ fontSize:9, color:C.gold, marginTop:2, letterSpacing:1 }}>
+                              ⚽ PARTIDO · {match.hora}h
+                            </div>
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {TIME_SLOTS.map((time, ri) => (
+                    <tr key={time}>
+                      <td style={{ background: ri%2===0 ? C.blueLight : C.white, color:C.blueDeep, fontSize:11, textAlign:"center", padding:"4px", border:`1px solid ${C.blueBorder}`, fontWeight:700, whiteSpace:"nowrap", fontFamily:"'Arial',sans-serif" }}>
+                        {time}
+                      </td>
+                      {dayColumns.map((d,ci) => {
+                        const dayLabel = formatDate(d);
+                        const key = cellKey(dayLabel, time);
+                        const entry = scheduleEntries[key] || "";
+                        const colors = entry ? getActivityColor(entry) : null;
+                        const isMatch = isMatchDay(d);
+                        return (
+                          <td key={ci}
+                            onClick={() => handleCellClick(dayLabel, time)}
+                            onDragOver={e => { e.preventDefault(); setDragOver(key); }}
+                            onDragLeave={() => setDragOver(null)}
+                            onDrop={e => { e.preventDefault(); handleDrop(dayLabel, time); }}
+                            style={{
+                              border: dragOver===key ? `2px dashed ${C.blueMid}` : isMatch ? `1px solid ${C.blueLight}` : `1px solid ${C.grayLight}`,
+                              borderLeft: dragOver===key ? `3px solid ${C.blueMid}` : colors ? `3px solid ${colors.border}` : isMatch ? `1px solid ${C.blueLight}` : `1px solid ${C.grayLight}`,
+                              padding:"4px 8px", cursor: dragging ? "copy" : "pointer", minWidth:180,
+                              background: dragOver===key ? C.blueLight : colors ? colors.bg : isMatch ? "#EEF4FF" : ri%2===0 ? C.offWhite : C.white,
+                              transition:"background .1s",
+                            }}>
+                            {editingCell===key ? (
+                              <input autoFocus value={cellText}
+                                onChange={e => setCellText(e.target.value)}
+                                onBlur={handleCellSave}
+                                onKeyDown={e => { if(e.key==="Enter")handleCellSave(); if(e.key==="Escape")setEditingCell(null); }}
+                                style={{ width:"100%", border:"none", outline:"none", fontSize:12, color:C.text, background:"transparent", padding:0, fontFamily:"'Arial',sans-serif" }}
+                              />
+                            ) : (
+                              <span style={{ fontSize:11, color: colors ? colors.text : "#8A9BB0", fontWeight: entry ? 600 : 400, fontFamily:"'Arial',sans-serif" }}>
+                                {entry || ""}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Legend — draggable chips */}
+            <div style={{ marginTop:16, background:C.white, borderRadius:8, border:`1px solid ${C.blueBorder}`, padding:"12px 16px", boxShadow:"0 1px 6px rgba(0,48,135,.05)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
+                <span style={{ fontSize:10, color:C.textLight, fontFamily:"'Arial',sans-serif", letterSpacing:1, fontWeight:700 }}>ACTIVIDADES</span>
+                <span style={{ fontSize:10, color:C.gray, fontFamily:"'Arial',sans-serif" }}>— arrastra sobre la celda deseada</span>
+                {dragging && (
+                  <span style={{ marginLeft:"auto", background:C.blueLight, color:C.blueDeep, borderRadius:4, padding:"2px 10px", fontSize:11, fontWeight:700, fontFamily:"'Arial',sans-serif" }}>
+                    ✦ Arrastrando: <strong>{dragging}</strong>
+                  </span>
+                )}
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
+                {Object.entries(ACTIVITY_COLORS).filter(([k])=>k!=="default").map(([k,v]) => (
+                  <div key={k}
+                    draggable
+                    onDragStart={() => setDragging(k)}
+                    onDragEnd={() => { setDragging(null); setDragOver(null); }}
+                    style={{
+                      background: dragging===k ? v.border : v.bg,
+                      border: `1.5px solid ${v.border}`,
+                      borderRadius:4, padding:"5px 12px",
+                      cursor:"grab",
+                      userSelect:"none",
+                      opacity: dragging && dragging!==k ? 0.45 : 1,
+                      transform: dragging===k ? "scale(1.06)" : "scale(1)",
+                      transition:"all .15s",
+                      boxShadow: dragging===k ? `0 4px 12px ${v.border}55` : "none",
+                    }}>
+                    <span style={{ fontSize:11, color: dragging===k ? C.white : v.text, fontWeight:700, fontFamily:"'Arial',sans-serif", letterSpacing:.3 }}>
+                      {k}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        ) : activeTab === "viaje-campo" ? (
+
+          /* ── VIAJE & CAMPO ── */
+          (() => {
+            const sInfo = !match.esLocal ? getStadiumInfo(rival) : null;
+            const cesped_color = sInfo?.cesped === "artificial" ? { bg:"#FFF3E0", border:"#E07800", text:"#8B4500" }
+                               : sInfo?.cesped === "híbrido"    ? { bg:"#E8F5E8", border:"#388E3C", text:"#1B5020" }
+                               : { bg:"#EAF4EA", border:"#2E7D32", text:"#1B5020" };
+            return (
+            <div style={{ paddingTop:24, paddingBottom:32 }}>
+              <MatchInfoBanner match={match} rival={rival} competicion={competicion} />
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginTop:20 }}>
+
+                {/* ── Tarjeta Estadio ── */}
+                <div style={{ background:C.white, borderRadius:8, border:`1px solid ${C.blueBorder}`, overflow:"hidden", boxShadow:"0 2px 10px rgba(0,48,135,.06)" }}>
+                  <div style={{ background:C.blueDeep, color:C.white, padding:"10px 18px", fontSize:11, fontWeight:700, letterSpacing:1, fontFamily:"'Arial',sans-serif" }}>
+                    ESTADIO / CAMPO
+                  </div>
+                  <div style={{ padding:"16px 18px" }}>
+                    {sInfo ? (
+                      <>
+                        {/* Nombre y ciudad */}
+                        <div style={{ marginBottom:14 }}>
+                          <div style={{ fontSize:16, fontWeight:700, color:C.blueDeep, fontFamily:"'Georgia',serif" }}>{sInfo.estadio}</div>
+                          <div style={{ fontSize:12, color:C.textLight, fontFamily:"'Arial',sans-serif", marginTop:2 }}>📍 {sInfo.ciudad}</div>
+                        </div>
+
+                        {/* Datos clave en grid */}
+                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                          {[
+                            { label:"DIMENSIONES", value: sInfo.dim + " m", icon:"📐" },
+                            { label:"SUPERFICIE",  value: sInfo.cesped.charAt(0).toUpperCase()+sInfo.cesped.slice(1), icon: sInfo.cesped==="artificial"?"🔵":sInfo.cesped==="híbrido"?"🟡":"🟢" },
+                            { label:"AFORO",       value: sInfo.aforo ? sInfo.aforo.toLocaleString("es-ES")+" esp." : "—", icon:"👥" },
+                            { label:"DISTANCIA",   value: sInfo.km ? `${sInfo.km} km` : "Vuelo", icon:"🛣️" },
+                          ].map(d => (
+                            <div key={d.label} style={{ background:C.offWhite, borderRadius:6, padding:"10px 12px", border:`1px solid ${C.grayLight}` }}>
+                              <div style={{ fontSize:9, color:C.textLight, fontFamily:"'Arial',sans-serif", letterSpacing:1, fontWeight:700, marginBottom:3 }}>{d.label}</div>
+                              <div style={{ fontSize:13, fontWeight:700, color:C.text, fontFamily:"'Arial',sans-serif" }}>{d.icon} {d.value}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Badge tipo césped */}
+                        <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:cesped_color.bg, border:`1.5px solid ${cesped_color.border}`, borderRadius:5, padding:"5px 12px", marginBottom:14 }}>
+                          <span style={{ fontSize:11, fontWeight:700, color:cesped_color.text, fontFamily:"'Arial',sans-serif" }}>
+                            Césped {sInfo.cesped} · {sInfo.dim} m
+                          </span>
+                        </div>
+
+                        {/* Nota dimensiones */}
+                        {sInfo.dim !== "105 × 68" && (
+                          <div style={{ background:C.goldLight, border:`1px solid ${C.gold}`, borderRadius:5, padding:"8px 12px", fontSize:11, color:"#7A5C00", fontFamily:"'Arial',sans-serif", marginBottom:10 }}>
+                            ⚠ Campo con dimensiones no estándar ({sInfo.dim} m vs. 105×68 m estándar)
+                          </div>
+                        )}
+
+                        {/* Campo para añadir info extra */}
+                        <div>
+                          <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:4, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>NOTAS ADICIONALES</label>
+                          <input value={travelInfo.campoDim||""} placeholder="Vestuarios, accesos, observaciones..."
+                            onChange={e => setTravelInfo(p => ({...p, campoDim:e.target.value}))}
+                            style={{ width:"100%", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit" }} />
+                        </div>
+                      </>
+                    ) : (
+                      /* Partido en casa o sin datos → formulario manual */
+                      <>
+                        {match.esLocal && (
+                          <div style={{ background:C.blueLight, borderRadius:6, padding:"10px 14px", marginBottom:14, fontSize:12, color:C.blueDeep, fontFamily:"'Arial',sans-serif" }}>
+                            🏠 Partido en casa — Estadio Alfredo Di Stéfano · 105 × 68 m · Césped natural
+                          </div>
+                        )}
+                        {[
+                          { label:"Nombre del estadio", key:"campo", placeholder:"Estadio Municipal..." },
+                          { label:"Dimensiones", key:"campoDim", placeholder:"105 × 68 m" },
+                        ].map(f => (
+                          <div key={f.key} style={{ marginBottom:12 }}>
+                            <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:4, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>{f.label.toUpperCase()}</label>
+                            <input value={travelInfo[f.key]||""} placeholder={f.placeholder}
+                              onChange={e => setTravelInfo(p => ({...p,[f.key]:e.target.value}))}
+                              style={{ width:"100%", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit" }} />
+                          </div>
+                        ))}
+                      </>
+                    )}
+                    <div style={{ background:C.blueLight, borderRadius:6, height:180, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:6, border:`1px dashed ${C.blueBorder}`, marginTop:12 }}>
+                      <span style={{ fontSize:22 }}>🗺</span>
+                      <span style={{ fontSize:11, color:C.textLight, fontFamily:"'Arial',sans-serif", textAlign:"center", padding:"0 16px" }}>Vista aérea del campo</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Tarjeta Distancia ── */}
+                <div style={{ background:C.white, borderRadius:8, border:`1px solid ${C.blueBorder}`, overflow:"hidden", boxShadow:"0 2px 10px rgba(0,48,135,.06)" }}>
+                  <div style={{ background:C.blueDeep, color:C.white, padding:"10px 18px", fontSize:11, fontWeight:700, letterSpacing:1, fontFamily:"'Arial',sans-serif" }}>
+                    DISTANCIA DESDE VALDEBEBAS
+                  </div>
+                  <div style={{ padding:"16px 18px" }}>
+                    {sInfo ? (
+                      <>
+                        <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:18, background:C.offWhite, borderRadius:8, padding:"14px 18px", border:`1px solid ${C.grayLight}` }}>
+                          <div style={{ textAlign:"center", flex:1 }}>
+                            <div style={{ fontSize:28, fontWeight:700, color:C.blueDeep, fontFamily:"'Georgia',serif" }}>
+                              {sInfo.km ?? "✈"}
+                            </div>
+                            <div style={{ fontSize:10, color:C.textLight, fontFamily:"'Arial',sans-serif", letterSpacing:1 }}>KM</div>
+                          </div>
+                          <div style={{ width:1, height:50, background:C.grayLight }}/>
+                          <div style={{ textAlign:"center", flex:1 }}>
+                            <div style={{ fontSize:22, fontWeight:700, color:C.blueMid, fontFamily:"'Georgia',serif" }}>{sInfo.hBus}</div>
+                            <div style={{ fontSize:10, color:C.textLight, fontFamily:"'Arial',sans-serif", letterSpacing:1 }}>EN AUTOCAR</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize:11, color:C.textLight, fontFamily:"'Arial',sans-serif", marginBottom:14, fontStyle:"italic" }}>
+                          * Distancias aproximadas desde Ciudad Deportiva Real Madrid (Valdebebas). Tiempo en autocar estimado.
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ marginBottom:14 }}>
+                        <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:4, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>DISTANCIA Y TIEMPO ESTIMADO</label>
+                        <input value={travelInfo.distCRM||""} placeholder="320 km · 3h 30min en bus"
+                          onChange={e => setTravelInfo(p => ({...p, distCRM:e.target.value}))}
+                          style={{ width:"100%", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit" }} />
+                      </div>
+                    )}
+                    <div style={{ background:C.blueLight, borderRadius:6, height:240, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:6, border:`1px dashed ${C.blueBorder}` }}>
+                      <span style={{ fontSize:22 }}>🗺</span>
+                      <span style={{ fontSize:11, color:C.textLight, fontFamily:"'Arial',sans-serif", textAlign:"center", padding:"0 16px" }}>Ruta Valdebebas → {sInfo?.estadio || "Estadio"}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            );
+          })()
+
+        ) : (
+
+          /* ── HOTEL ── */
+          <div style={{ paddingTop:24, paddingBottom:32 }}>
+            <MatchInfoBanner match={match} rival={rival} competicion={competicion} />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginTop:20 }}>
+              <InfoCard title="Hotel del Equipo" fields={[
+                { label:"Nombre del hotel", key:"hotel", placeholder:"Hotel Meliá Ponferrada..." },
+                { label:"Dirección", key:"hotelDir", placeholder:"Avda. del Castillo, 182..." },
+              ]} travelInfo={travelInfo} setTravelInfo={setTravelInfo} mapLabel="Ubicación del hotel" />
+              <InfoCard title="Distancia Hotel → Campo" fields={[
+                { label:"Distancia y tiempo estimado", key:"distHotel", placeholder:"2.3 km · 8 min en bus" },
+              ]} travelInfo={travelInfo} setTravelInfo={setTravelInfo} mapLabel="Ruta Hotel → Estadio" mapHeight={240} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ MODAL ACTUALIZAR FECHAS ══ */}
+      {showUpdateModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,24,64,0.60)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:C.white, borderRadius:10, padding:28, width:560, maxWidth:"94vw", boxShadow:"0 12px 40px rgba(0,48,135,.25)", border:`1px solid ${C.blueBorder}`, maxHeight:"90vh", overflowY:"auto" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16, borderBottom:`1px solid ${C.grayLight}`, paddingBottom:12 }}>
+              <span style={{ fontSize:22 }}>🔄</span>
+              <span style={{ fontSize:14, fontWeight:700, color:C.blueDeep, fontFamily:"'Georgia',serif" }}>Actualizar fechas y horas</span>
+              <button onClick={() => setShowUpdateModal(false)} style={{ marginLeft:"auto", background:"none", border:"none", fontSize:20, cursor:"pointer", color:C.gray }}>✕</button>
+            </div>
+
+            <div style={{ fontSize:12, color:C.textLight, marginBottom:14, lineHeight:1.6, background:C.blueLight, borderRadius:6, padding:"10px 14px", border:`1px solid ${C.blueBorder}` }}>
+              <strong style={{ color:C.blueDeep }}>Cómo usarlo:</strong><br/>
+              1. Ve a <strong>marcadores.rfef.es</strong> o a la web de la RFEF<br/>
+              2. Selecciona la jornada o el partido del Castilla<br/>
+              3. <strong>Copia el texto</strong> de la pantalla (Ctrl+A → Ctrl+C)<br/>
+              4. Pégalo aquí abajo y pulsa <strong>Actualizar</strong><br/>
+              <br/>
+              Detecta automáticamente: jornada, fecha (dd/mm/aaaa) y hora (HH:MM)
+            </div>
+
+            <textarea
+              value={updateText}
+              onChange={e => setUpdateText(e.target.value)}
+              placeholder={"Pega aquí el texto copiado de la RFEF...\n\nEjemplo:\nJ30 · Barakaldo vs RM Castilla · 29/03/2026 · 18:30\nJ31 · RM Castilla vs Celta Fortuna · 05/04/2026 · 12:00"}
+              style={{ width:"100%", minHeight:160, border:`1px solid ${C.blueBorder}`, borderRadius:6, padding:"10px 12px", fontSize:12, fontFamily:"'Arial',monospace", color:C.text, resize:"vertical", boxSizing:"border-box", lineHeight:1.5 }}
+            />
+
+            {updateResult && (
+              <div style={{ marginTop:14 }}>
+                {updateResult.updated.length > 0 && (
+                  <div style={{ background:"#EAF4EA", border:"1px solid #2E7D32", borderRadius:6, padding:"10px 14px", marginBottom:10 }}>
+                    <div style={{ fontWeight:700, color:"#1B5020", fontSize:12, marginBottom:6 }}>✅ {updateResult.updated.length} partido(s) actualizado(s):</div>
+                    {updateResult.updated.map((u,i) => (
+                      <div key={i} style={{ fontSize:11, color:"#1B5020", marginBottom:3 }}>
+                        <strong>J{u.jornada} · {u.rival}</strong>: {u.before.fecha} {u.before.hora} → <strong>{u.after.fecha} {u.after.hora}</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {updateResult.notFound.length > 0 && (
+                  <div style={{ background:"#FFF8E1", border:"1px solid #C8A840", borderRadius:6, padding:"10px 14px", marginBottom:10 }}>
+                    <div style={{ fontWeight:700, color:"#7A5C00", fontSize:12, marginBottom:6 }}>⚠ {updateResult.notFound.length} línea(s) no reconocida(s):</div>
+                    {updateResult.notFound.map((l,i) => (
+                      <div key={i} style={{ fontSize:11, color:"#7A5C00", fontFamily:"monospace" }}>{l}</div>
+                    ))}
+                  </div>
+                )}
+                {updateResult.updated.length === 0 && updateResult.notFound.length === 0 && (
+                  <div style={{ background:"#FFF3E0", border:"1px solid #E07800", borderRadius:6, padding:"10px 14px", fontSize:12, color:"#8B4500" }}>
+                    ⚠ No se encontraron fechas reconocibles en el texto. Comprueba el formato.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display:"flex", gap:10, marginTop:16, justifyContent:"flex-end" }}>
+              <button onClick={() => setShowUpdateModal(false)} style={{ ...btnGhost }}>Cancelar</button>
+              <button onClick={() => { applyCalendarUpdate(); }}
+                style={{ ...btnPrimary, background:"#0277BD" }}
+                disabled={!updateText.trim()}>
+                🔄 Actualizar
+              </button>
+              {updateResult?.updated?.length > 0 && (
+                <button onClick={() => setShowUpdateModal(false)} style={{ ...btnPrimary }}>
+                  ✓ Cerrar y aplicar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ MODAL PARTIDO MANUAL ══ */}
+      {showAddMatch && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,24,64,0.55)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:C.white, borderRadius:10, padding:28, width:420, maxWidth:"92vw", boxShadow:"0 12px 40px rgba(0,48,135,.22)", border:`1px solid ${C.blueBorder}` }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20, borderBottom:`1px solid ${C.grayLight}`, paddingBottom:12 }}>
+              <img src={RM_LOGO} alt="" style={{ width:32, height:32, borderRadius:"50%" }} />
+              <span style={{ fontSize:14, fontWeight:700, color:C.blueDeep, fontFamily:"'Georgia',serif" }}>Añadir partido manual</span>
+            </div>
+            {[
+              { label:"Competición", key:"competicion", placeholder:"Copa del Rey, UEFA Youth..." },
+              { label:"Jornada / Ronda", key:"jornada", placeholder:"Ronda 16, J5..." },
+              { label:"Equipo Local", key:"local" },
+              { label:"Equipo Visitante", key:"visitante" },
+              { label:"Fecha (YYYY-MM-DD)", key:"fecha", placeholder:"2026-03-18" },
+              { label:"Hora (HH:MM)", key:"hora", placeholder:"20:00" },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom:10 }}>
+                <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:3, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>
+                  {f.label.toUpperCase()}
+                </label>
+                <input value={newMatch[f.key]} placeholder={f.placeholder||""}
+                  onChange={e => setNewMatch(p => ({...p,[f.key]:e.target.value}))}
+                  style={{ width:"100%", boxSizing:"border-box", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit", outline:"none" }} />
+              </div>
+            ))}
+            <div style={{ marginBottom:16 }}>
+              <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:3, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>RM CASTILLA JUEGA</label>
+              <select value={newMatch.esLocal?"1":"0"} onChange={e => setNewMatch(p => ({...p,esLocal:e.target.value==="1"}))}
+                style={{ width:"100%", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit" }}>
+                <option value="1">En casa (Local)</option>
+                <option value="0">Fuera (Visitante)</option>
+              </select>
+            </div>
+            <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
+              <button onClick={() => setShowAddMatch(false)} style={btnGhost}>Cancelar</button>
+              <button onClick={() => {
+                setCustomMatches(p => [...p, {...newMatch, provisional:false}]);
+                setShowAddMatch(false);
+                setNewMatch({ jornada:"", local:"RM Castilla", visitante:"", fecha:"", hora:"12:00", esLocal:true, competicion:"Copa" });
+              }} style={btnPrimary}>Guardar partido</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; }
+        select, input { outline: none; }
+        td:hover { filter: brightness(.97); }
+        button:hover { filter: brightness(1.08); }
+        [draggable]:active { cursor: grabbing; }
+        @keyframes pulse {
+          0%   { box-shadow: 0 0 0 0 rgba(229,62,62,.5); }
+          70%  { box-shadow: 0 0 0 10px rgba(229,62,62,0); }
+          100% { box-shadow: 0 0 0 0 rgba(229,62,62,0); }
+        }
+        @media print {
+          body { background: white !important; }
+          @page { margin: 8mm; size: A4; }
+          @page :first { size: A4 portrait; }
+          button, select { display:none !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function MatchInfoBanner({ match, rival, competicion }) {
+  return (
+    <div style={{ background:C.blueDeep, borderRadius:7, padding:"12px 20px", display:"flex", alignItems:"center", gap:16, flexWrap:"wrap", borderLeft:`5px solid ${C.gold}` }}>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:15, fontWeight:700, color:C.white, fontFamily:"'Georgia',serif" }}>
+          {match.esLocal ? `RM Castilla — ${rival}` : `${rival} — RM Castilla`}
+        </div>
+        <div style={{ fontSize:11, color:"#A8C4E8", marginTop:2, fontFamily:"'Arial',sans-serif" }}>
+          {competicion}{match.jornada?` · Jornada ${match.jornada}`:""} · {match.fecha} · {match.hora}h · {match.esLocal?"Local":"Visitante"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ title, fields, travelInfo, setTravelInfo, mapLabel, mapHeight=200 }) {
+  return (
+    <div style={{ background:C.white, borderRadius:8, border:`1px solid ${C.blueBorder}`, overflow:"hidden", boxShadow:"0 2px 10px rgba(0,48,135,.06)" }}>
+      <div style={{ background:C.blueDeep, color:C.white, padding:"10px 18px", fontSize:11, fontWeight:700, letterSpacing:1, fontFamily:"'Arial',sans-serif" }}>
+        {title.toUpperCase()}
+      </div>
+      <div style={{ padding:"16px 18px" }}>
+        {fields.map(f => (
+          <div key={f.key} style={{ marginBottom:12 }}>
+            <label style={{ fontSize:10, color:C.textLight, display:"block", marginBottom:4, fontFamily:"'Arial',sans-serif", letterSpacing:.5, fontWeight:600 }}>
+              {f.label.toUpperCase()}
+            </label>
+            <input value={travelInfo[f.key]||""} placeholder={f.placeholder||""}
+              onChange={e => setTravelInfo(p => ({...p,[f.key]:e.target.value}))}
+              style={{ width:"100%", background:C.offWhite, color:C.text, border:`1px solid ${C.blueBorder}`, borderRadius:5, padding:"8px 10px", fontSize:13, fontFamily:"inherit" }} />
+          </div>
+        ))}
+        <div style={{ background:C.blueLight, borderRadius:6, height:mapHeight, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:6, border:`1px dashed ${C.blueBorder}`, marginTop:4 }}>
+          <span style={{ fontSize:22 }}>🗺</span>
+          <span style={{ fontSize:11, color:C.textLight, fontFamily:"'Arial',sans-serif", textAlign:"center", padding:"0 16px" }}>{mapLabel}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
